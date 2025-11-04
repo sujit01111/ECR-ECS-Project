@@ -18,11 +18,17 @@ phases:
       # Remove buildspec from artifacts
       - rm -f output/buildspec.yml
 
-  post_build:
-    commands:
-      - echo "Build complete - $(ls -la output/)" 
-      - echo "Invalidating Cloudfront cache..."
-      - aws cloudfront create-invalidation --distribution-id E2V4Z0MVMLHQ5A --paths "/*"  
+ post_build:
+  commands:
+    - echo "=== DEBUG: Checking AWS identity and CLI ==="
+    - aws sts get-caller-identity
+    - aws --version
+    - echo "=== DEBUG: Checking CloudFront distribution ==="
+    - aws cloudfront list-distributions --query "DistributionList.Items[*].Id"
+    - echo "=== Invalidating CloudFront cache ==="
+    - aws cloudfront create-invalidation --distribution-id E2V4Z0MVMLHQ5A --paths "/*" --region us-east-1
+
+  
       
 artifacts:
   files:
